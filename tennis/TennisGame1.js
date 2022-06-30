@@ -1,64 +1,42 @@
+const SCORE_NAMES = ["Love", "Fifteen", "Thirty", "Forty"];
+const FORTY_SCORE = 3;
+const PLAYER1_NAME = "player1";
+const PLAYER2_NAME = "player2";
+
 var TennisGame1 = function(player1Name, player2Name) {
-    this.m_score1 = 0;
-    this.m_score2 = 0;
+    this.player1Score = 0;
+    this.player2Score = 0;
+    
     this.player1Name = player1Name;
     this.player2Name = player2Name;
 };
 
 TennisGame1.prototype.wonPoint = function(playerName) {
-    if (playerName === "player1")
-        this.m_score1 += 1;
-    else
-        this.m_score2 += 1;
+    if (playerName === PLAYER1_NAME) {
+        ++this.player1Score;
+    } else {
+        ++this.player2Score;
+    }
 };
 
 TennisGame1.prototype.getScore = function() {
-    var score = "";
-    var tempScore = 0;
-    if (this.m_score1 === this.m_score2) {
-        switch (this.m_score1) {
-            case 0:
-                score = "Love-All";
-                break;
-            case 1:
-                score = "Fifteen-All";
-                break;
-            case 2:
-                score = "Thirty-All";
-                break;
-            default:
-                score = "Deuce";
-                break;
+    let score = "";
+
+    if (this.player1Score === this.player2Score) {
+        if (this.player1Score < FORTY_SCORE) {
+            score = SCORE_NAMES[this.player1Score] + "-All";
+        } else {
+            score = "Deuce";
         }
-    } else if (this.m_score1 >= 4 || this.m_score2 >= 4) {
-        var minusResult = this.m_score1 - this.m_score2;
-        if (minusResult === 1) score = "Advantage player1";
-        else if (minusResult === -1) score = "Advantage player2";
-        else if (minusResult >= 2) score = "Win for player1";
-        else score = "Win for player2";
+    } else if (this.player1Score > FORTY_SCORE || this.player2Score > FORTY_SCORE) {
+        const minusResult = this.player1Score - this.player2Score;
+        const statement = Math.abs(minusResult) === 1 ? "Advantage" : "Win for";
+        const win_player = minusResult > 0 ? PLAYER1_NAME : PLAYER2_NAME;
+        score = statement + " " + win_player;
     } else {
-        for (var i = 1; i < 3; i++) {
-            if (i === 1) tempScore = this.m_score1;
-            else {
-                score += "-";
-                tempScore = this.m_score2;
-            }
-            switch (tempScore) {
-                case 0:
-                    score += "Love";
-                    break;
-                case 1:
-                    score += "Fifteen";
-                    break;
-                case 2:
-                    score += "Thirty";
-                    break;
-                case 3:
-                    score += "Forty";
-                    break;
-            }
-        }
+        score = SCORE_NAMES[this.player1Score] + "-" + SCORE_NAMES[this.player2Score];
     }
+
     return score;
 };
 
