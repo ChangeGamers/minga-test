@@ -35,6 +35,11 @@ export class Game {
     }
 
     add(playerName) {
+        if (this.players.length == 6) {
+            console.log("No more players can be added.");
+            return false;
+        }
+        
         this.players.push(playerName);
         this.places[this.howManyPlayers() - 1] = 0;
         this.purses[this.howManyPlayers() - 1] = 0;
@@ -50,7 +55,7 @@ export class Game {
         return this.players.length;
     };
 
-    didPlayerWin() {
+    didPlayerLose() {
         return !(this.purses[this.currentPlayer] == 6)
     };
 
@@ -97,11 +102,16 @@ export class Game {
     };
 
 
-    isPlayable(howManyPlayers) {
-        return howManyPlayers >= 2;
+    isPlayable() {
+        return this.howManyPlayers() >= 2;
     };
 
     roll(roll) {
+        if (!this.isPlayable()) {
+            console.log("Game is not playable.");
+            return;
+        }
+
         console.log(this.players[this.currentPlayer] + " is the current player");
         console.log("They have rolled a " + roll);
 
@@ -124,7 +134,7 @@ export class Game {
     _movePlayerAndAskQuestion(roll) {
         this.places[this.currentPlayer] = this.places[this.currentPlayer] + roll;
         if (this.places[this.currentPlayer] > 11) {
-            this.places[this.currentPlayer] = this.places[this.currentPlayer] - 12;
+            this.places[this.currentPlayer] = this.places[this.currentPlayer] % 12;
         }
 
         console.log(this.players[this.currentPlayer] + "'s new location is " + this.places[this.currentPlayer]);
@@ -133,20 +143,27 @@ export class Game {
     }
 
     wasCorrectlyAnswered() {
+        if (!this.isPlayable()) {
+            console.log("Game is not playable.");
+            return false;
+        }
+
         if (this.inPenaltyBox[this.currentPlayer]) {
             if (this.isGettingOutOfPenaltyBox) {
                 console.log('Answer was correct!!!!');
-                this.currentPlayer += 1;
-                if (this.currentPlayer == this.players.length)
-                    this.currentPlayer = 0;
-
+                
                 this.purses[this.currentPlayer] += 1;
                 console.log(this.players[this.currentPlayer] + " now has " +
                     this.purses[this.currentPlayer] + " Gold Coins.");
+                this.inPenaltyBox[this.currentPlayer] = false;
+                
+                var loser = this.didPlayerLose();
 
-                var winner = this.didPlayerWin();
-
-                return winner;
+                this.currentPlayer += 1;
+                if (this.currentPlayer == this.players.length)
+                    this.currentPlayer = 0;
+    
+                return loser;
             } else {
                 this.currentPlayer += 1;
                 if (this.currentPlayer == this.players.length)
@@ -158,20 +175,26 @@ export class Game {
         } else {
             console.log('Answer was correct!!!!');
 
-            this.currentPlayer += 1;
-            if (this.currentPlayer == this.players.length)
-                this.currentPlayer = 0;
             this.purses[this.currentPlayer] += 1;
             console.log(this.players[this.currentPlayer] + " now has " +
                 this.purses[this.currentPlayer] + " Gold Coins.");
 
-            var winner = this.didPlayerWin();
+            var loser = this.didPlayerLose();
 
-            return winner;
+            this.currentPlayer += 1;
+            if (this.currentPlayer == this.players.length)
+                this.currentPlayer = 0;
+
+            return loser;
         }
     };
 
     wrongAnswer() {
+        if (!this.isPlayable()) {
+            console.log("Game is not playable.");
+            return false;
+        }
+
         console.log('Question was incorrectly answered');
         console.log(this.players[this.currentPlayer] + " was sent to the penalty box");
         this.inPenaltyBox[this.currentPlayer] = true;
